@@ -1,0 +1,36 @@
+{
+  "name": "wfh-tool",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "nodemon --watch . --exec electron .",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Piyush2611/WFH-Tool.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Piyush2611/WFH-Tool/issues"
+  },
+  "homepage": "https://github.com/Piyush2611/WFH-Tool#readme",
+  "dependencies": {
+    "@tensorflow/tfjs-node": "^4.22.0",
+    "active-win": "^8.2.1",
+    "canvas": "^3.2.0",
+    "electron": "^37.4.0",
+    "electron-builder": "^26.0.12",
+    "face-api.js": "^0.22.2",
+    "node-global-key-listener": "^0.3.0",
+    "opencv.js": "^1.2.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}

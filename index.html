@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Desktop Tracker</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+      }
+      #output {
+        margin-top: 20px;
+        line-height: 1.5;
+        font-size: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Activity Tracker</h1>
+    <div id="output"></div>
+
+    <script>
+      // Listen for app usage events from the main process
+      window.electronAPI.onAppUsage((_event, data) => {
+        const div = document.getElementById("output");
+        const message = `App <strong>${data.name}</strong> used for <strong>${data.duration}</strong> seconds`;
+        div.innerHTML += `${message}<br>`;
+      });
+    </script>
+  </body>
+</html>
