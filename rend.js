@@ -1,9 +1,13 @@
-const cv = require("opencv4nodejs");
+// renderer.js
 
-const wCap = new cv.VideoCapture(0);
-setInterval(() => {
-  let frame = wCap.read();
-  const classifier = new cv.CascadeClassifier(cv.HAAR_FRONTALFACE_ALT2);
-  const { objects } = classifier.detectMultiScale(frame.bgrToGray());
-  console.log("Faces Detected:", objects.length);
-}, 0);
+// Listen for app-usage events from the main process USING THE EXPOSED API
+window.electronAPI.onAppUsage((_event, data) => {
+  const outputDiv = document.getElementById("output");
+  if (outputDiv) {
+    const message = `App <strong>${data.name}</strong> used for <strong>${data.duration}</strong> seconds`;
+    outputDiv.innerHTML += `${message}<br>`;
+  }
+});
+
+// --- Code for handling wellness nudges would go here in Phase 2 ---
+// window.electronAPI.onWellnessNudge((_event, data) => { ... });

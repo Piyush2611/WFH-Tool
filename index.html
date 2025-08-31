@@ -1,30 +1,35 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <title>Desktop Tracker</title>
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-        padding: 20px;
-      }
-      #output {
-        margin-top: 20px;
-        line-height: 1.5;
-        font-size: 16px;
-      }
-    </style>
-  </head>
-  <body>
-    <h1>Activity Tracker</h1>
-    <div id="output"></div>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FlowState</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>FlowState</h1>
+            <p>Your work wellness dashboard</p>
+        </header>
 
-    <script>
-      // Listen for app usage events from the main process
-      window.electronAPI.onAppUsage((_event, data) => {
-        const div = document.getElementById("output");
-        const message = `App <strong>${data.name}</strong> used for <strong>${data.duration}</strong> seconds`;
-        div.innerHTML += `${message}<br>`;
-      });
-    </script>
-  </body>
+        <div id="nudge-container" class="nudge-container hidden">
+            <!-- Wellness nudges will appear here -->
+        </div>
+
+        <main class="dashboard">
+            <section class="card focus-card">
+                <h2>Focus Time</h2>
+                <p class="focus-time" id="focus-time-today">0h 0m</p>
+                <p>Your avg. focus session: <span id="avg-focus-session">25m</span></p>
+            </section>
+
+            <section class="card activity-card">
+                <h2>Recent Activity</h2>
+                <div id="output"></div> <!-- Your original log -->
+            </section>
+        </main>
+    </div>
+    <script src="rend.js"></script>
+</body>
 </html>

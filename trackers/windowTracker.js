@@ -1,31 +1,36 @@
+// windowTracker.js (Updated)
 const { ipcMain } = require("electron");
 const activeWin = require("active-win");
 
-let lastWindow = null;
-let lastTimestamp = Date.now();
+function startWindowTracking(win, analyst) {
+  let lastWindow = null;
+  let lastTimestamp = Date.now();
 
-function startWindowTracking(win) { // pass BrowserWindow reference
   setInterval(async () => {
-    const window = await activeWin();
-    if (!window) return;
+    const currentWindow = await activeWin();
+    if (!currentWindow) return;
 
-    if (lastWindow && lastWindow.owner.name === window.owner.name) {
-      // same app continues, do nothing
-    } else {
+    const currentAppName = currentWindow.owner.name;
+
+    if (!lastWindow || currentAppName !== lastWindow.owner.name) {
+      // App switch detected
       if (lastWindow) {
-        const duration = Math.floor((Date.now() - lastTimestamp) / 1000); // in seconds
+        const duration = Math.floor((Date.now() - lastTimestamp) / 1000);
         console.log(`App ${lastWindow.owner.name} used for ${duration} seconds`);
 
-        // Send info to renderer
+        // Send to UI (your original feature)
         win.webContents.send("app-usage", {
           name: lastWindow.owner.name,
-          duration
+          duration: duration,
         });
+
+        // Send to Wellness Analyst (NEW - for burnout prevention)
+        analyst.recordAppUsage(lastWindow.owner.name, duration);
       }
-      lastWindow = window;
+      lastWindow = currentWindow;
       lastTimestamp = Date.now();
     }
-  }, 2000);
+  }, 2000); // Check every 2 seconds
 }
 
 module.exports = { startWindowTracking };

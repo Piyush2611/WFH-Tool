@@ -1,11 +1,14 @@
+// keyTracker.js (Updated)
 const { GlobalKeyboardListener } = require("node-global-key-listener");
 
-function startKeyTracking() {
-  const keyboard = new GlobalKeyboardListener();
+function startKeyTracking(analyst) {
+  const v = new GlobalKeyboardListener();
+  console.log("Keyboard listener started.");
 
-  keyboard.addListener((e, down) => {
+  v.addListener(function (e, down) {
     if (e.state === "DOWN") {
-      console.log("Key pressed:", e.name, `(RawCode: ${e.rawKey._rawCode})`);
+      // Send keystroke to Wellness Analyst
+      analyst.recordKeystroke();
     }
   });
 }

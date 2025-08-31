@@ -1,37 +1,43 @@
-const { app, BrowserWindow } = require("electron");
-const activeWin = require("active-win");
+// main.js (Updated)
+const { app, BrowserWindow, ipcMain } = require("electron");
+const path = require("path");
+const { startWindowTracking } = require("./trackers/windowTracker");
+const { startKeyTracking } = require("./trackers/keyTracker");
+// We'll create this new module to analyze the data
+const { WellnessAnalyst } = require("./trackers/WellnessAnalyst");
 
-let lastWindow = null;
-let lastTimestamp = Date.now();
+let mainWindow;
+let analyst;
 
 function createWindow() {
-  const win = new BrowserWindow({
-    width: 800,
-    height: 600,
+  mainWindow = new BrowserWindow({
+    width: 1000,
+    height: 700,
     webPreferences: {
-      preload: `${__dirname}/preload.js`,
+      preload: path.join(__dirname, "preload.js"),
+      contextIsolation: true,
     },
   });
 
-  win.loadFile("index.html");
+  mainWindow.loadFile("index.html");
 
-  // Start tracking window usage
-  setInterval(async () => {
-    const currentWindow = await activeWin();
-    if (!currentWindow) return;
+  // Initialize our AI wellness analyst
+  analyst = new WellnessAnalyst();
 
-    if (!lastWindow || currentWindow.owner.name !== lastWindow.owner.name) {
-      if (lastWindow) {
-        const duration = Math.floor((Date.now() - lastTimestamp) / 1000);
-        win.webContents.send("app-usage", {
-          name: lastWindow.owner.name,
-          duration,
-        });
-      }
-      lastWindow = currentWindow;
-      lastTimestamp = Date.now();
-    }
-  }, 0);
+  // Start all tracking modules, passing the analyst for data processing
+  startWindowTracking(mainWindow, analyst);
+  startKeyTracking(analyst);
+
+  // Listen for events from the renderer (e.g., user dismissing a nudge)
+  ipcMain.on("user-dismissed-nudge", (event, nudgeType) => {
+    analyst.recordUserFeedback(nudgeType);
+  });
 }
 
 app.whenReady().then(createWindow);
+
+// Handle app closing
+app.on("window-all-closed", () => {
+  analyst.saveUserModel(); // Save learned preferences before quitting
+  app.quit();
+});
