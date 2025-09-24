@@ -2,44 +2,52 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FlowState</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FlowState</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 
 <body>
-    <div class="container">
-        <header>
-            <h1>FlowState</h1>
-            <p>Your work wellness dashboard</p>
-        </header>
+  <div class="container">
+    <header>
+      <h1>FlowState</h1>
+      <p>Your work wellness dashboard</p>
+    </header>
 
-        <div id="nudge-container" class="nudge-container hidden">
-            <!-- Wellness nudges will appear here -->
-        </div>
-
-        <main class="dashboard">
-            <section class="card activity-card">
-                <h2>Recent Activity</h2>
-                <!-- <button id="start-recording">Start Recording</button> -->
-                <!-- Table for displaying app usage -->
-                <table id="usage-table">
-                    <thead>
-                        <tr>
-                            <th class="table-header">App</th>
-                            <th class="table-header">Time</th>
-                        </tr>
-                    </thead>
-
-                    <tbody id="usage-table-body">
-                        <!-- Dynamic rows for app usage will be added here -->
-                    </tbody>
-                </table>
-            </section>
-        </main>
+    <div id="nudge-container" class="nudge-container hidden">
+      <!-- Wellness nudges will appear here -->
     </div>
-    <script src="rend.js"></script>
+
+    <main class="dashboard">
+      <section class="card activity-card">
+        <!-- <h2>Pomodoro Timer</h2>
+        <div id="pomodoro-container" class="pomodoro-container">
+          <p id="pomodoro-timer" class="pomodoro-timer">Focus Time: 25:00</p>
+          <button id="start-pomodoro" class="btn-primary">Start Pomodoro</button>
+        </div> -->
+
+        <!-- <div id="summary-info" class="summary-info">Total Focus Time Today: 00:00:00</div> -->
+
+        <h2>Recent Activity</h2>
+        <table id="usage-table" class="usage-table">
+          <thead>
+            <tr>
+              <th class="table-header">App</th>
+              <th class="table-header">Time</th>
+            </tr>
+          </thead>
+          <tbody id="usage-table-body">
+            <!-- Dynamic rows for app usage will be added here -->
+          </tbody>
+        </table>
+
+        <!-- <button id="start-recording" class="btn-primary mt-20">Start Recording</button> -->
+      </section>
+    </main>
+  </div>
+
+  <script src="rend.js"></script>
 </body>
 
 </html>

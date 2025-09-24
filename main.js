@@ -1,19 +1,23 @@
 const { app, BrowserWindow, ipcMain, desktopCapturer } = require("electron");
 const path = require("path");
-const { startWindowTracking} = require("./trackers/windowTracker");
-const {startKeyTracking} = require("./trackers/keyTracker");
-const fs = require("fs");
+const os = require("os");
 const { spawn } = require("child_process");
 const { WellnessAnalyst } = require("./trackers/WellnessAnalyst");
+const { startWindowTracking } = require("./trackers/windowTracker");
+const { startKeyTracking } = require("./trackers/keyTracker");
 
 let mainWindow;
 let analyst;
+let ffmpegProcess = null;
+let idleTimer = null;
 
-// Create a new window
 function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1000,
     height: 700,
+    alwaysOnTop: true,
+    frame: true,
+    kiosk: false, // Set true for full lock
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       contextIsolation: true,
@@ -22,73 +26,107 @@ function createWindow() {
 
   mainWindow.loadFile("index.html");
 
-  // Initialize AI wellness analyst
   analyst = new WellnessAnalyst();
   startWindowTracking(mainWindow, analyst);
   startKeyTracking(analyst);
+
+  // Force focus back to app if user tries to switch
+  mainWindow.on("blur", () => {
+    console.log("Focus lost - bringing window back to front.");
+    mainWindow.focus();
+  });
+
+  // Track idle time
+  startIdleTracking();
 }
 
-// Function to start screen recording
+function startIdleTracking() {
+  let lastActivity = Date.now();
+
+  ipcMain.on("user-activity", () => {
+    lastActivity = Date.now();
+  });
+
+  idleTimer = setInterval(() => {
+    const now = Date.now();
+    const idleSeconds = (now - lastActivity) / 1000;
+    if (idleSeconds > 60) {
+      console.log("User idle for more than 60 seconds.");
+      mainWindow.webContents.send("user-idle", idleSeconds);
+    }
+  }, 10000);
+}
+
+async function getSources() {
+  return desktopCapturer.getSources({ types: ["window", "screen"] });
+}
+
 async function startRecording() {
   try {
     const sources = await getSources();
-    const windowSource = sources.find((source) => source.name === "FlowState"); // Replace with your window title
+    let windowSource = sources.find(source => source.name === "FlowState");
+    if (!windowSource) {
+      console.warn("FlowState window not found, defaulting to primary screen.");
+      windowSource = sources.find(source => source.type === "screen") || sources[0];
+    }
 
     if (!windowSource) {
-      console.error("Window source not found!");
+      console.error("No suitable source found.");
       return;
     }
 
-    const videoPath = path.join(__dirname, 'recorded-video.mp4');
+    const videoPath = path.join(__dirname, "recorded-video.mp4");
 
-    // Set up ffmpeg command to record the window
-    const ffmpeg = spawn('ffmpeg', [
-      '-f', 'x11grab',  // For Linux. On macOS, use '-f avfoundation'
-      '-i', windowSource.id,  // Input window
-      '-vcodec', 'libx264',  // Video codec
-      '-preset', 'fast',  // Encoding preset
-      '-crf', '23',  // Video quality
-      '-pix_fmt', 'yuv420p', // Pixel format
-      videoPath,  // Output file
-    ]);
+    let ffmpegInputArgs;
+    if (process.platform === "win32") {
+      ffmpegInputArgs = ["-f", "gdigrab", "-framerate", "30", "-i", `title=${windowSource.name}`];
+    } else if (process.platform === "darwin") {
+      ffmpegInputArgs = ["-f", "avfoundation", "-framerate", "30", "-i", "1:none"];
+    } else if (process.platform === "linux") {
+      const display = process.env.DISPLAY || ":0.0";
+      ffmpegInputArgs = ["-f", "x11grab", "-framerate", "30", "-i", `${display}+0,0`];
+    } else {
+      console.error(`Unsupported platform: ${process.platform}`);
+      return;
+    }
 
-    ffmpeg.on('close', (code) => {
-      console.log(`FFmpeg process exited with code ${code}`);
+    if (ffmpegProcess) {
+      ffmpegProcess.kill();
+      ffmpegProcess = null;
+    }
+
+    const ffmpegArgs = [
+      ...ffmpegInputArgs,
+      "-vcodec", "libx264",
+      "-preset", "fast",
+      "-crf", "23",
+      "-pix_fmt", "yuv420p",
+      videoPath,
+    ];
+
+    ffmpegProcess = spawn("ffmpeg", ffmpegArgs);
+
+    ffmpegProcess.stderr.on("data", data => console.log(`FFmpeg stderr: ${data}`));
+    ffmpegProcess.on("close", code => {
+      console.log(`FFmpeg exited with code ${code}`);
+      ffmpegProcess = null;
     });
 
-    ffmpeg.on('error', (err) => {
-      console.error('FFmpeg error:', err);
-    });
+    console.log("Recording started:", videoPath);
   } catch (error) {
-    console.error("Error starting recording:", error);
+    console.error("Recording error:", error);
   }
 }
 
-// Function to get screen/window sources (returns a Promise)
-function getSources() {
-  return new Promise((resolve, reject) => {
-    desktopCapturer.getSources({ types: ['window', 'screen'] }, (error, sources) => {
-      if (error) {
-        reject(new Error("Error getting sources: " + error));
-      } else {
-        resolve(sources);
-      }
-    });
-  });
-}
+app.whenReady().then(createWindow);
 
-// Handle the app window creation
-app.whenReady().then(() => {
-  createWindow();
-});
-
-// Quit when all windows are closed
 app.on("window-all-closed", () => {
-  analyst.saveUserModel(); // Save learned preferences before quitting
+  if (analyst) analyst.saveUserModel();
+  if (idleTimer) clearInterval(idleTimer);
   app.quit();
 });
 
-// IPC listener to start recording
-ipcMain.on("start-recording", (event) => {
-  startRecording(); // Start the window recording
+ipcMain.on("start-recording", () => {
+  console.log("start-recording IPC received!");
+  startRecording();
 });
