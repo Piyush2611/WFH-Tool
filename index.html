@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FlowState</title>
     <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
     <div class="container">
         <header>
@@ -18,18 +20,26 @@
         </div>
 
         <main class="dashboard">
-            <section class="card focus-card">
-                <h2>Focus Time</h2>
-                <p class="focus-time" id="focus-time-today">0h 0m</p>
-                <p>Your avg. focus session: <span id="avg-focus-session">25m</span></p>
-            </section>
-
             <section class="card activity-card">
                 <h2>Recent Activity</h2>
-                <div id="output"></div> <!-- Your original log -->
+                <!-- <button id="start-recording">Start Recording</button> -->
+                <!-- Table for displaying app usage -->
+                <table id="usage-table">
+                    <thead>
+                        <tr>
+                            <th class="table-header">App</th>
+                            <th class="table-header">Time</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="usage-table-body">
+                        <!-- Dynamic rows for app usage will be added here -->
+                    </tbody>
+                </table>
             </section>
         </main>
     </div>
     <script src="rend.js"></script>
 </body>
+
 </html>

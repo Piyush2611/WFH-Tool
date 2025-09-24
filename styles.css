@@ -81,3 +81,7 @@ header {
 .hidden {
     display: none;
 }
+
+.table-header {
+    padding-right: 369px; /* Adds space between the two columns */
+}
