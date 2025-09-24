@@ -15,7 +15,7 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1000,
     height: 700,
-    alwaysOnTop: true,
+    alwaysOnTop: false,
     frame: true,
     kiosk: false, // Set true for full lock
     webPreferences: {
@@ -31,10 +31,10 @@ function createWindow() {
   startKeyTracking(analyst);
 
   // Force focus back to app if user tries to switch
-  mainWindow.on("blur", () => {
-    console.log("Focus lost - bringing window back to front.");
-    mainWindow.focus();
-  });
+  // mainWindow.on("blur", () => {
+  //   console.log("Focus lost - bringing window back to front.");
+  //   mainWindow.focus();
+  // });
 
   // Track idle time
   startIdleTracking();

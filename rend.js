@@ -3,7 +3,7 @@
 // ----------------------
 let appUsageData = {};
 let isUserIdle = false;
-let idleThreshold = 60; // seconds
+let idleThreshold = 10; // seconds
 
 // ----------------------
 // Pomodoro Timer Setup
