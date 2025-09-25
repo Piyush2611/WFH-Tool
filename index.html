@@ -6,6 +6,60 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>FlowState</title>
   <link rel="stylesheet" href="styles.css" />
+  <style>
+    /* Simple styles for the auth form */
+    #auth-container {
+      max-width: 320px;
+      margin: 20px auto;
+      border: 1px solid #ccc;
+      padding: 20px;
+      border-radius: 8px;
+      background: #fafafa;
+    }
+
+    #auth-container input {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 10px;
+      box-sizing: border-box;
+    }
+
+    #auth-submit-btn {
+      width: 100%;
+      padding: 10px;
+      background: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-size: 1em;
+      border-radius: 4px;
+    }
+
+    #auth-submit-btn:hover {
+      background: #0056b3;
+    }
+
+    #auth-error {
+      color: red;
+      margin-bottom: 10px;
+      display: none;
+    }
+
+    #toggle-auth-link {
+      cursor: pointer;
+      color: #007bff;
+      text-decoration: underline;
+    }
+
+    #toggle-auth-link:hover {
+      color: #0056b3;
+    }
+
+    /* Hide dashboard content until logged in */
+    #main-dashboard-content {
+      display: none;
+    }
+  </style>
 </head>
 
 <body>
@@ -15,19 +69,33 @@
       <p>Your work wellness dashboard</p>
     </header>
 
-    <div id="nudge-container" class="nudge-container hidden">
-      <!-- Wellness nudges will appear here -->
+    <!-- Authentication UI -->
+    <div id="auth-container">
+      <h3 id="auth-title">Login</h3>
+      <div id="auth-error"></div>
+      <input type="email" id="auth-email" placeholder="Email" />
+      <input type="password" id="auth-password" placeholder="Password" />
+      <button id="auth-submit-btn">Login</button>
+      <p style="text-align: center; margin-top: 10px;">
+        <span id="toggle-auth-text">Don't have an account?</span>
+        <a id="toggle-auth-link">Register</a>
+      </p>
     </div>
 
-    <main class="dashboard">
+    <!-- Main Dashboard Content (hidden until login) -->
+    <main id="main-dashboard-content" class="dashboard">
       <section class="card activity-card">
-        <!-- <h2>Pomodoro Timer</h2>
+
+        <!-- Pomodoro Timer (commented, enable when logged in) -->
+        <!--
+        <h2>Pomodoro Timer</h2>
         <div id="pomodoro-container" class="pomodoro-container">
           <p id="pomodoro-timer" class="pomodoro-timer">Focus Time: 25:00</p>
           <button id="start-pomodoro" class="btn-primary">Start Pomodoro</button>
-        </div> -->
+        </div>
 
-        <!-- <div id="summary-info" class="summary-info">Total Focus Time Today: 00:00:00</div> -->
+        <div id="summary-info" class="summary-info">Total Focus Time Today: 00:00:00</div>
+        -->
 
         <h2>Recent Activity</h2>
         <table id="usage-table" class="usage-table">
@@ -43,11 +111,16 @@
         </table>
 
         <!-- <button id="start-recording" class="btn-primary mt-20">Start Recording</button> -->
+
       </section>
     </main>
   </div>
 
   <script src="rend.js"></script>
+  <script>
+    // Show dashboard content only after successful login
+    // (Assuming your JS handles hiding auth-container and showing dashboard)
+  </script>
 </body>
 
 </html>
