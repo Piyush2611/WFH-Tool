@@ -6,4 +6,5 @@ contextBridge.exposeInMainWorld("electronAPI", {
   startRecording: () => ipcRenderer.send("start-recording"),
   onIdle: (callback) => ipcRenderer.on("user-idle", (_event, idleTime) => callback(idleTime)),
   sendUserActivity: () => ipcRenderer.send("user-activity"),
+  sendLocation: (locationData) => ipcRenderer.send('user-location', locationData),
 });

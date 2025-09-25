@@ -227,3 +227,56 @@ window.electronAPI.onIdle((idleTime) => {
   isUserIdle = true;
   showToast(`You've been idle for ${Math.floor(idleTime)} seconds. Let's get back to work!`);
 });
+
+function getCurrentLocation() {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      position => {
+        const { latitude, longitude } = position.coords;
+        console.log(`Latitude: ${latitude}, Longitude: ${longitude}`);
+        window.electronAPI.sendLocation({ latitude, longitude });
+        // updateLocationUI(latitude, longitude); // <- remove this to keep it silent
+      },
+      error => {
+        console.error('Error getting location:', error);
+        fallbackToIPLocation(); // Always fallback silently
+      }
+    );
+  } else {
+    fallbackToIPLocation();
+  }
+}
+
+
+// Fallback to IP-based location (if geolocation fails)
+function fallbackToIPLocation() {
+  const token = "3b79e90c2edcb8";
+  fetch(`https://ipinfo.io/json?token=${token}`)
+    .then(response => response.json())
+    .then(data => {
+      const [latitude, longitude] = data.loc.split(',');
+      console.log(`Fallback location: Latitude: ${latitude}, Longitude: ${longitude}`);
+      window.electronAPI.sendLocation({ latitude, longitude });
+      // updateLocationUI(latitude, longitude); // <- remove this to keep it silent
+    })
+    .catch(err => {
+      console.error('Failed to fetch IP-based location:', err);
+    });
+}
+
+
+// Update the UI with the fetched location
+function updateLocationUI(latitude, longitude) {
+  const locationDiv = document.createElement('div');
+  locationDiv.textContent = `Current Location: Latitude: ${latitude}, Longitude: ${longitude}`;
+  locationDiv.style.fontSize = '1em';
+  locationDiv.style.marginTop = '10px';
+
+  dashboard.appendChild(locationDiv);
+}
+
+// Automatically get location when the app loads (in background)
+window.addEventListener('DOMContentLoaded', () => {
+  getCurrentLocation();
+});
+
